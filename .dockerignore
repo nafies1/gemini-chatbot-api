@@ -1,0 +1,12 @@
+# Ignore node_modules as they will be installed inside the container
+node_modules
+
+# Ignore environment variables file, as these should be passed securely at runtime
+.env
+
+# Log files
+npm-debug.log
+
+# Git specific files
+.git
+.gitignore
