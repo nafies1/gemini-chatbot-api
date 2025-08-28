@@ -1,30 +1,3 @@
-// const form = document.getElementById('chat-form');
-// const input = document.getElementById('user-input');
-// const chatBox = document.getElementById('chat-box');
-
-// form.addEventListener('submit', function (e) {
-//   e.preventDefault();
-
-//   const userMessage = input.value.trim();
-//   if (!userMessage) return;
-
-//   appendMessage('user', userMessage);
-//   input.value = '';
-
-//   // Simulasi dummy balasan bot (placeholder)
-//   setTimeout(() => {
-//     appendMessage('bot', 'Gemini is thinking... (this is dummy response)');
-//   }, 1000);
-// });
-
-// function appendMessage(sender, text) {
-//   const msg = document.createElement('div');
-//   msg.classList.add('message', sender);
-//   msg.textContent = text;
-//   chatBox.appendChild(msg);
-//   chatBox.scrollTop = chatBox.scrollHeight;
-// }
-
 /**
  * This script handles the frontend logic for a simple chatbot application.
  * It captures user input, sends it to a backend API, and displays the
@@ -36,6 +9,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const userInput = document.getElementById('user-input');
     const chatBox = document.getElementById('chat-box');
     const sendButton = chatForm.querySelector('button[type="submit"]');
+    const clearChatButton = document.getElementById('clear-chat-btn');
+
+    const CHAT_STORAGE_KEY = 'gemini-chat-history';
+
+    // Array to store the history of the conversation
+    let chatHistory = [];
+
+    /**
+     * Saves the current chat history to localStorage.
+     */
+    const saveChatHistory = () => {
+        localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(chatHistory));
+    };
+
+    /**
+     * Loads chat history from localStorage and populates the chat box.
+     */
+    const loadChatHistory = () => {
+        const savedHistory = localStorage.getItem(CHAT_STORAGE_KEY);
+        if (savedHistory) {
+            chatHistory = JSON.parse(savedHistory);
+            chatHistory.forEach(message => {
+                addMessage(message.content, message.role === 'model' ? 'bot' : 'user');
+            });
+        }
+    };
 
     /**
      * Simulates a typing effect for a given message in a DOM element.
@@ -102,6 +101,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 1. Add the user's message to the chat interface
         addMessage(userMessage, 'user');
+        // Add the user's message to the history for context
+        chatHistory.push({ role: 'user', content: userMessage });
+        saveChatHistory();
 
         // 2. Clear the input field and show a "Thinking..." message
         userInput.value = '';
@@ -116,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    messages: [{ role: 'user', content: userMessage }],
+                    messages: chatHistory,
                 }),
             });
 
@@ -131,6 +133,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // 4. Replace the "Thinking..." message with the AI's actual response
             if (data && data.result) {
                 await typeMessage(botMessageElement, data.result);
+                // Add the bot's response to the history for context.
+                // The Gemini API uses 'model' for the assistant's role.
+                chatHistory.push({ role: 'model', content: data.result });
+                saveChatHistory();
             } else {
                 botMessageElement.textContent = 'Sorry, no response received.';
             }
@@ -139,6 +145,8 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error fetching chat response:', error);
             botMessageElement.classList.remove('chat-box__message--thinking');
             botMessageElement.textContent = 'Failed to get response from server.';
+            // On failure, remove the last user message from history to allow for a clean retry
+            chatHistory.pop();
         } finally {
             // 5. Re-enable form controls and focus input
             userInput.disabled = false;
@@ -147,6 +155,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    /**
+     * Clears the chat history from the UI, the state array, and localStorage.
+     */
+    const handleClearChat = () => {
+        chatHistory = [];
+        localStorage.removeItem(CHAT_STORAGE_KEY);
+        chatBox.innerHTML = '';
+        userInput.focus();
+    };
+
     // Attach the event listener to the form
     chatForm.addEventListener('submit', handleChatSubmit);
+    clearChatButton.addEventListener('click', handleClearChat);
+
+    // Load chat history when the page loads
+    loadChatHistory();
 });
