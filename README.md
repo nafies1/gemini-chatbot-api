@@ -2,6 +2,8 @@
 
 A simple chatbot web application built with Node.js/Express for the backend and Vanilla JavaScript for the frontend. It leverages the Google Gemini API to generate AI responses and features a dynamic chat interface with typing animations and markdown rendering.
 
+Try the demo [Gemini Chatbot Web App](https://gemini-chatbot-api-760237378769.us-central1.run.app/).
+
 ## Features
 
 - Real-time chat interaction.
