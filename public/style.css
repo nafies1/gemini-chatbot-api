@@ -127,3 +127,42 @@ button:hover {
 #clear-chat-btn:hover {
   background-color: #f1b0b7;
 }
+
+.retry-button {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid #6c757d;
+  background-color: #ffffff;
+  color: #495057;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-width: 28px;
+}
+
+.retry-button:hover {
+  background-color: #f8f9fa;
+  border-color: #495057;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.retry-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.retry-button:disabled {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
